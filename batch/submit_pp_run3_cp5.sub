@@ -1,0 +1,31 @@
+universe = vanilla
+executable = batch/run_pp_run3_cp5.sh
+
+# These defaults are deliberately small enough for a first validation run.
+n_jobs = 10
+events_per_job = 10000
+nch_min = 0
+campaign_seed = 136000001
+save_constituents = 0
+job_flavour = workday
+
+output_file = pp_run3_cp5_13p6_nchGE$(nch_min)_job$(ProcId).root
+arguments = $(ProcId) $(events_per_job) $(nch_min) $(campaign_seed) $(save_constituents) $(output_file)
+
+should_transfer_files = YES
+when_to_transfer_output = ON_EXIT
+transfer_input_files = pp_run3_cp5_13p6,batch/setup_lxplus.sh
+transfer_output_files = $(output_file)
+transfer_output_remaps = "$(output_file)=outputs/$(output_file)"
+
+request_cpus = 1
+request_memory = 2 GB
+request_disk = 4 GB
+requirements = (OpSysAndVer == "AlmaLinux9")
++JobFlavour = "$(job_flavour)"
+
+output = logs/run3_cp5_$(ClusterId)_$(ProcId).out
+error = logs/run3_cp5_$(ClusterId)_$(ProcId).err
+log = logs/run3_cp5_$(ClusterId).log
+
+queue $(n_jobs)

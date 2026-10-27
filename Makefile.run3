@@ -1,0 +1,37 @@
+CXX ?= c++
+TARGET := pp_run3_cp5_13p6
+SOURCE := $(TARGET).cc
+
+PYTHIA8_CONFIG ?= pythia8-config
+FASTJET_CONFIG ?= fastjet-config
+ROOT_CONFIG ?= root-config
+LHAPDF_CONFIG ?= lhapdf-config
+
+PYTHIA8_INCLUDEDIR := $(shell $(PYTHIA8_CONFIG) --includedir 2>/dev/null)
+PYTHIA8_LIBDIR := $(shell $(PYTHIA8_CONFIG) --libdir 2>/dev/null)
+
+CPPFLAGS += -I$(PYTHIA8_INCLUDEDIR)
+CXXFLAGS += -O3 -std=c++17 -Wall -Wextra -Wpedantic
+CXXFLAGS += $(shell $(FASTJET_CONFIG) --cxxflags 2>/dev/null)
+CXXFLAGS += $(shell $(ROOT_CONFIG) --cflags 2>/dev/null)
+CXXFLAGS += $(shell $(LHAPDF_CONFIG) --cflags 2>/dev/null)
+LDLIBS += -L$(PYTHIA8_LIBDIR) -Wl,-rpath,$(PYTHIA8_LIBDIR) -lpythia8 -ldl
+LDLIBS += $(shell $(FASTJET_CONFIG) --libs 2>/dev/null)
+LDLIBS += $(shell $(ROOT_CONFIG) --libs 2>/dev/null)
+LDLIBS += $(shell $(LHAPDF_CONFIG) --libs 2>/dev/null)
+
+.PHONY: all check-env clean
+
+all: check-env $(TARGET)
+
+check-env:
+	@command -v $(PYTHIA8_CONFIG) >/dev/null || { echo "Missing pythia8-config"; exit 1; }
+	@command -v $(FASTJET_CONFIG) >/dev/null || { echo "Missing fastjet-config"; exit 1; }
+	@command -v $(ROOT_CONFIG) >/dev/null || { echo "Missing root-config"; exit 1; }
+	@command -v $(LHAPDF_CONFIG) >/dev/null || { echo "Missing lhapdf-config"; exit 1; }
+
+$(TARGET): $(SOURCE)
+	$(CXX) $(CPPFLAGS) $(CXXFLAGS) $< -o $@ $(LDLIBS)
+
+clean:
+	$(RM) $(TARGET)
