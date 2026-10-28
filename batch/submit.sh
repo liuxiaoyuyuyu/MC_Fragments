@@ -49,6 +49,11 @@ done
 # --- Ensure logs directory exists ---
 mkdir -p logs
 
+# --- Pre-create EOS output directory from login node (reliable EOS access) ---
+EOS_DIR="/eos/cms/store/group/phys_heavyions/xiaoyul/13p6_pythia8/nchGE${NCH_MIN}_cs${CAMPAIGN_SEED}"
+eos mkdir -p "${EOS_DIR}"
+echo "  EOS dir ready: ${EOS_DIR}"
+
 # --- Summary ---
 echo "Submitting pp_run3_cp5 jobs:"
 echo "  n_jobs          = ${N_JOBS}"
