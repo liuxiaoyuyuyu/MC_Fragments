@@ -6,6 +6,10 @@
 # LHAPDF note: lhapdf-config has a broken baked-in prefix, so we bypass it
 # by exporting LHAPDF_PREFIX directly. Makefile.run3 uses this instead.
 #
+# LHAPDF_DATA_PATH uses two paths separated by ':':
+#   1. Local install share dir — contains lhapdf.conf (required by LHAPDF at runtime)
+#   2. CVMFS               — contains the actual PDF sets (NNPDF31_nnlo_as_0118, etc.)
+#
 # set -e is turned off at the end so sourcing this file does not make the
 # interactive shell exit on subsequent command failures (e.g. a failed make).
 
@@ -19,7 +23,7 @@ export LHAPDF_PREFIX=/afs/cern.ch/user/x/xiaoyul/LHAPDF_Lib
 
 export PATH="${PYTHIA8_PREFIX}/bin:${FASTJET_PREFIX}/bin:${PATH}"
 export LD_LIBRARY_PATH="${PYTHIA8_PREFIX}/lib:${FASTJET_PREFIX}/lib:${LHAPDF_PREFIX}/lib:${LD_LIBRARY_PATH:-}"
-export LHAPDF_DATA_PATH="${CVMFS_LHAPDF}"
+export LHAPDF_DATA_PATH="${LHAPDF_PREFIX}/share/LHAPDF:${CVMFS_LHAPDF}"
 
 for cmd in pythia8-config fastjet-config root-config; do
   if ! command -v "${cmd}" >/dev/null 2>&1; then
@@ -35,6 +39,12 @@ if [[ ! -f "${LHAPDF_PREFIX}/lib/libLHAPDF.so" ]]; then
   return 1 2>/dev/null || exit 1
 fi
 
+if [[ ! -f "${LHAPDF_PREFIX}/share/LHAPDF/lhapdf.conf" ]]; then
+  echo "lhapdf.conf not found at ${LHAPDF_PREFIX}/share/LHAPDF" >&2
+  set +eo pipefail
+  return 1 2>/dev/null || exit 1
+fi
+
 if [[ ! -d "${CVMFS_LHAPDF}/NNPDF31_nnlo_as_0118" ]]; then
   echo "NNPDF31_nnlo_as_0118 not found at ${CVMFS_LHAPDF}" >&2
   echo "Check that CVMFS is mounted on this node." >&2
@@ -44,7 +54,7 @@ fi
 
 set +eo pipefail
 echo "Environment ready."
-echo "  pythia8-config: $(which pythia8-config)"
-echo "  fastjet-config: $(which fastjet-config)"
-echo "  LHAPDF_PREFIX:  ${LHAPDF_PREFIX}"
+echo "  pythia8-config:   $(which pythia8-config)"
+echo "  fastjet-config:   $(which fastjet-config)"
+echo "  LHAPDF_PREFIX:    ${LHAPDF_PREFIX}"
 echo "  LHAPDF_DATA_PATH: ${LHAPDF_DATA_PATH}"
