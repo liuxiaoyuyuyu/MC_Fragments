@@ -15,8 +15,7 @@ job_flavour     = workday
 eos_base        = /eos/cms/store/group/phys_heavyions/xiaoyul/13p6_pythia8
 eos_dir         = $(eos_base)/nchGE$(nch_min)_cs$(campaign_seed)
 
-output_file = pp_run3_cp5_13p6_nchGE$(nch_min)_job$(ProcId).root
-arguments   = $(ProcId) $(events_per_job) $(nch_min) $(campaign_seed) $(output_file) $(eos_dir)
+arguments   = $(ProcId) $(events_per_job) $(nch_min) $(campaign_seed) $(eos_dir)
 
 should_transfer_files   = YES
 when_to_transfer_output = ON_EXIT
