@@ -203,13 +203,15 @@ int main(int argc, char* argv[]) {
   // All final-state particles
   std::vector<float> px, py, pz, m;
   std::vector<int>   pid, chg;
+  // Event ID
+  long long eventId = 0;
   // DIS placeholders (kept for branch-name compatibility; always 0 in pp)
   float Q2 = 0, W2 = 0, x = 0, y = 0;
   // Jet kinematics
   std::vector<float> genJetPt, genJetEta, genJetPhi, genJetMass;
   std::vector<int>   genJetChargedMultiplicity;
   // Jet constituents (vector<vector<T>>)
-  std::vector<std::vector<float>> genDau_pt, genDau_eta, genDau_phi;
+  std::vector<std::vector<float>> genDau_pt, genDau_eta, genDau_phi, genDau_mass;
   std::vector<std::vector<int>>   genDau_chg, genDau_pid;
 
   TTree* trackTree = new TTree("trackTree", "Run-3 CP5 generator-level events");
@@ -217,6 +219,7 @@ int main(int argc, char* argv[]) {
   trackTree->Branch("weight",                  &weight);
   trackTree->Branch("processCode",             &processCode);
   trackTree->Branch("nMPI",                    &nMPI);
+  trackTree->Branch("eventId",                 &eventId);
   trackTree->Branch("px",                      &px);
   trackTree->Branch("py",                      &py);
   trackTree->Branch("pz",                      &pz);
@@ -235,6 +238,7 @@ int main(int argc, char* argv[]) {
   trackTree->Branch("genDau_pt",               &genDau_pt);
   trackTree->Branch("genDau_eta",              &genDau_eta);
   trackTree->Branch("genDau_phi",              &genDau_phi);
+  trackTree->Branch("genDau_mass",             &genDau_mass);
   trackTree->Branch("genDau_chg",              &genDau_chg);
   trackTree->Branch("genDau_pid",              &genDau_pid);
 
@@ -292,13 +296,13 @@ int main(int argc, char* argv[]) {
     // Build analysis jets with Nch
     std::vector<fastjet::PseudoJet> analysisJets;
     std::vector<int>                analysisNch;
-    std::vector<std::vector<float>> dauPt, dauEta, dauPhi;
+    std::vector<std::vector<float>> dauPt, dauEta, dauPhi, dauMass;
     std::vector<std::vector<int>>   dauChg, dauPid;
 
     for (const auto& jet : allJets) {
       if (TMath::Abs(jet.eta()) > options.jetAbsEtaMax) continue;
       int chMult = 0;
-      std::vector<float> tPt, tEta, tPhi;
+      std::vector<float> tPt, tEta, tPhi, tMass;
       std::vector<int>   tChg, tPid;
       for (const auto& c : jet.constituents()) {
         const Pythia8::Particle& cp = pythia.event[c.user_index()];
@@ -306,12 +310,13 @@ int main(int argc, char* argv[]) {
         tPt.push_back(c.pt());
         tEta.push_back(c.eta());
         tPhi.push_back(c.phi());
+        tMass.push_back(cp.m());
         tChg.push_back(static_cast<int>(cp.charge()));
         tPid.push_back(cp.id());
       }
       analysisJets.push_back(jet);
       analysisNch.push_back(chMult);
-      dauPt.push_back(tPt); dauEta.push_back(tEta); dauPhi.push_back(tPhi);
+      dauPt.push_back(tPt); dauEta.push_back(tEta); dauPhi.push_back(tPhi); dauMass.push_back(tMass);
       dauChg.push_back(tChg); dauPid.push_back(tPid);
     }
 
@@ -329,6 +334,7 @@ int main(int argc, char* argv[]) {
     }
 
     // ── Fill tree ─────────────────────────────────────────────────────────
+    eventId     = savedEvents;  // 0-based index of saved events
     NchHadrons  = nchHadronsEv;
     weight      = static_cast<float>(evtWeight);
     processCode = pythia.info.code();
@@ -344,6 +350,7 @@ int main(int argc, char* argv[]) {
       genDau_pt.push_back(dauPt[j]);
       genDau_eta.push_back(dauEta[j]);
       genDau_phi.push_back(dauPhi[j]);
+      genDau_mass.push_back(dauMass[j]);
       genDau_chg.push_back(dauChg[j]);
       genDau_pid.push_back(dauPid[j]);
     }
@@ -363,6 +370,7 @@ int main(int argc, char* argv[]) {
     genJetPt.clear(); genJetEta.clear(); genJetPhi.clear(); genJetMass.clear();
     genJetChargedMultiplicity.clear();
     genDau_pt.clear(); genDau_eta.clear(); genDau_phi.clear();
+    genDau_mass.clear();
     genDau_chg.clear(); genDau_pid.clear();
   }
 
