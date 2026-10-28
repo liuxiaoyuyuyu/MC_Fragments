@@ -9,7 +9,6 @@
 #   --events          N      Events per job           (default: 10000)
 #   --nch-min         N      Min charged constituents (default: 60)
 #   --campaign-seed   N      Campaign seed            (default: 246800099)
-#   --save-constituents      Save constituent tree    (default: off)
 #   --job-flavour     STR    HTCondor job flavour     (default: workday)
 #   -h, --help
 #
@@ -30,7 +29,6 @@ N_JOBS=10
 EVENTS_PER_JOB=10000
 NCH_MIN=60
 CAMPAIGN_SEED=246800099
-SAVE_CONSTITUENTS=0
 JOB_FLAVOUR=workday
 
 # --- Parse arguments ---
@@ -40,7 +38,6 @@ while [[ $# -gt 0 ]]; do
     --events)          EVENTS_PER_JOB="$2";  shift 2 ;;
     --nch-min)         NCH_MIN="$2";         shift 2 ;;
     --campaign-seed)   CAMPAIGN_SEED="$2";   shift 2 ;;
-    --save-constituents) SAVE_CONSTITUENTS=1; shift ;;
     --job-flavour)     JOB_FLAVOUR="$2";     shift 2 ;;
     -h|--help)
       sed -n '/^# Usage:/,/^[^#]/p' "$0" | grep '^#' | sed 's/^# \?//'
@@ -58,7 +55,6 @@ echo "  n_jobs          = ${N_JOBS}"
 echo "  events_per_job  = ${EVENTS_PER_JOB}"
 echo "  nch_min         = ${NCH_MIN}"
 echo "  campaign_seed   = ${CAMPAIGN_SEED}"
-echo "  save_constituents = ${SAVE_CONSTITUENTS}"
 echo "  job_flavour     = ${JOB_FLAVOUR}"
 echo "  eos_dir         = /eos/cms/store/group/phys_heavyions/xiaoyul/13p6_pythia8/nchGE${NCH_MIN}_cs${CAMPAIGN_SEED}"
 echo ""
@@ -68,5 +64,4 @@ condor_submit batch/submit_pp_run3_cp5.sub \
   events_per_job="${EVENTS_PER_JOB}"        \
   nch_min="${NCH_MIN}"                      \
   campaign_seed="${CAMPAIGN_SEED}"          \
-  save_constituents="${SAVE_CONSTITUENTS}"  \
   job_flavour="${JOB_FLAVOUR}"
