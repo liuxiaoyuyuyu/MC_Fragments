@@ -1,31 +1,38 @@
 universe = vanilla
 executable = batch/run_pp_run3_cp5.sh
 
-# These defaults are deliberately small enough for a first validation run.
-n_jobs = 10
-events_per_job = 10000
-nch_min = 0
-campaign_seed = 136000001
+# --- Campaign parameters ---
+# Test run: 10 jobs x 10k events, nch_min=60, distinct campaign seed.
+# For full production, change to:
+#   n_jobs = 500, events_per_job = 50000, campaign_seed = 246800001
+n_jobs          = 10
+events_per_job  = 10000
+nch_min         = 60
+campaign_seed   = 246800099
 save_constituents = 0
-job_flavour = workday
+job_flavour     = workday
+
+# EOS output directory — each campaign gets its own subdirectory
+eos_base        = /eos/cms/store/group/phys_heavyions/xiaoyul/13p6_pythia8
+eos_dir         = $(eos_base)/nchGE$(nch_min)_cs$(campaign_seed)
 
 output_file = pp_run3_cp5_13p6_nchGE$(nch_min)_job$(ProcId).root
-arguments = $(ProcId) $(events_per_job) $(nch_min) $(campaign_seed) $(save_constituents) $(output_file)
+arguments   = $(ProcId) $(events_per_job) $(nch_min) $(campaign_seed) $(save_constituents) $(output_file) $(eos_dir)
 
-should_transfer_files = YES
+should_transfer_files   = YES
 when_to_transfer_output = ON_EXIT
-transfer_input_files = pp_run3_cp5_13p6,batch/setup_lxplus.sh
-transfer_output_files = $(output_file)
-transfer_output_remaps = "$(output_file)=outputs/$(output_file)"
+transfer_input_files    = pp_run3_cp5_13p6,batch/setup_lxplus.sh
+# Output is copied to EOS by the worker script via xrdcp; no transfer back needed
+transfer_output_files   =
 
-request_cpus = 1
+request_cpus   = 1
 request_memory = 2 GB
-request_disk = 4 GB
-requirements = (OpSysAndVer == "AlmaLinux9")
-+JobFlavour = "$(job_flavour)"
+request_disk   = 4 GB
+requirements   = (OpSysAndVer == "AlmaLinux9")
++JobFlavour    = "$(job_flavour)"
 
 output = logs/run3_cp5_$(ClusterId)_$(ProcId).out
-error = logs/run3_cp5_$(ClusterId)_$(ProcId).err
-log = logs/run3_cp5_$(ClusterId).log
+error  = logs/run3_cp5_$(ClusterId)_$(ProcId).err
+log    = logs/run3_cp5_$(ClusterId).log
 
 queue $(n_jobs)
