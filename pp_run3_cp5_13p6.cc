@@ -206,7 +206,7 @@ int main(int argc, char* argv[]) {
   // DIS placeholders (kept for branch-name compatibility; always 0 in pp)
   float Q2 = 0, W2 = 0, x = 0, y = 0;
   // Jet kinematics
-  std::vector<float> genJetPt, genJetEta, genJetPhi;
+  std::vector<float> genJetPt, genJetEta, genJetPhi, genJetMass;
   std::vector<int>   genJetChargedMultiplicity;
   // Jet constituents (vector<vector<T>>)
   std::vector<std::vector<float>> genDau_pt, genDau_eta, genDau_phi;
@@ -230,6 +230,7 @@ int main(int argc, char* argv[]) {
   trackTree->Branch("genJetPt",                &genJetPt);
   trackTree->Branch("genJetEta",               &genJetEta);
   trackTree->Branch("genJetPhi",               &genJetPhi);
+  trackTree->Branch("genJetMass",               &genJetMass);
   trackTree->Branch("genJetChargedMultiplicity",&genJetChargedMultiplicity);
   trackTree->Branch("genDau_pt",               &genDau_pt);
   trackTree->Branch("genDau_eta",              &genDau_eta);
@@ -338,6 +339,7 @@ int main(int argc, char* argv[]) {
       genJetPt.push_back(static_cast<float>(analysisJets[j].pt()));
       genJetEta.push_back(static_cast<float>(analysisJets[j].eta()));
       genJetPhi.push_back(static_cast<float>(analysisJets[j].phi()));
+      genJetMass.push_back(static_cast<float>(analysisJets[j].m()));
       genJetChargedMultiplicity.push_back(analysisNch[j]);
       genDau_pt.push_back(dauPt[j]);
       genDau_eta.push_back(dauEta[j]);
@@ -358,7 +360,7 @@ int main(int argc, char* argv[]) {
     // Clear per-event vectors
     NchHadrons = 0; weight = 0; processCode = 0; nMPI = 0;
     px.clear(); py.clear(); pz.clear(); m.clear(); pid.clear(); chg.clear();
-    genJetPt.clear(); genJetEta.clear(); genJetPhi.clear();
+    genJetPt.clear(); genJetEta.clear(); genJetPhi.clear(); genJetMass.clear();
     genJetChargedMultiplicity.clear();
     genDau_pt.clear(); genDau_eta.clear(); genDau_phi.clear();
     genDau_chg.clear(); genDau_pid.clear();
